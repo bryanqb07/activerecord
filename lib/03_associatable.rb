@@ -10,23 +10,38 @@ class AssocOptions
   )
 
   def model_class
-    # ...
+    @class_name.constantize
   end
 
   def table_name
-    # ...
+    @class_name.downcase + 's'
   end
 end
 
 class BelongsToOptions < AssocOptions
   def initialize(name, options = {})
-    # ...
+    @foreign_key = "#{name}_id".to_sym
+    @primary_key = :id
+    @class_name = name.camelcase
+
+    # overrides
+    options.each do |k,v|
+      instance_variable_set("@#{k}", v) 
+    end
   end
 end
 
 class HasManyOptions < AssocOptions
   def initialize(name, self_class_name, options = {})
-    # ...
+    @foreign_key = "#{self_class_name.underscore}_id".to_sym
+    @primary_key = :id
+    @class_name = name.camelcase.singularize
+
+    # overrides
+    options.each do |k,v|
+      instance_variable_set("@#{k}", v) 
+    end
+ 
   end
 end
 
