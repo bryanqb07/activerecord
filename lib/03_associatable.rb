@@ -37,7 +37,6 @@ class HasManyOptions < AssocOptions
     @foreign_key = "#{self_class_name.underscore}_id".to_sym
     @primary_key = :id
     @class_name = name.to_s.camelcase.singularize
-
     # overrides
     options.each do |k,v|
       instance_variable_set("@#{k}", v) 
@@ -51,7 +50,6 @@ module Associatable
   def belongs_to(name, options = {})
     options = BelongsToOptions.new(name, options)
     define_method(name) do 
-      debugger
       foreign_key = send(options.foreign_key)
       primary_key = options.primary_key
       model_class = options.model_class
@@ -61,7 +59,14 @@ module Associatable
   end
 
   def has_many(name, options = {})
-    # ...
+    options = HasManyOptions.new(name, self.name, options)
+    define_method(name) do 
+      primary_key = send(options.primary_key)
+      foreign_key = options.foreign_key
+      model_class = options.model_class
+      results = model_class.where(foreign_key => primary_key)
+      results
+    end
   end
 
   def assoc_options
